@@ -67,7 +67,7 @@ def listWorks():
 #####################
 
 @app.route('/metadata', methods=['GET', 'POST'])
-def requestMetadata():
+def listMetadata():
     passedAuth = request.authorization
 
     if not passedAuth.password or not passedAuth.username:
@@ -82,7 +82,7 @@ def requestMetadata():
         # get the passed metadata XML file
         metadata = request.data['xml']
 
-        response = requests.get('https://mds.test.datacite.org/metadata',
+        response = requests.post('https://mds.test.datacite.org/metadata',
                     auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password),
                     data = metadata.encode('utf-8'),
                     headers = {'Content-Type': 'application/xml;charset=UTF-8'})
@@ -155,6 +155,28 @@ def getMedia(DOI):
 
     else:
         return PostGet405
+
+@app.route('/metadata/<path:DOI>', methods=['GET', 'DELETE'])
+def lookupMetadata(DOI):
+    passedAuth = request.authorization
+
+    if not passedAuth.password or not passedAuth.username:
+        return EmptyAuth
+
+    endpoint = "/".join(["https://mds.test.datacite.org/media", DOI])
+
+    if request.method == 'GET':
+        response = requests.get(endpoint,
+                        auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password) )
+        return buildResponse(response)
+
+    if request.method == 'DELETE':
+        response = requests.delete(endpoint,
+                        auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password) )
+        return buildResponse(response)
+
+    else:
+        return GetDelete405
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)

@@ -30,4 +30,8 @@ Get405 = flaskResponse(
         mimetype = 'text/plain'
         )
 
-
+GetDelete405 = flaskResponse( 
+        response = 'Method Not Allowed: DELETE and GET at this Endpoint', 
+        status = 405,
+        mimetype = 'text/plain'
+        )
