@@ -59,7 +59,7 @@ def listPeople(PersonID):
     return response.content
 
 @app.route('/works/<path:DOI>')
-def getDOI(DOI):
+def getWork(DOI):
     url = "/".join(["https://api.datacite.org/works", DOI])
     response = requests.get(url)
     return response.content
@@ -77,11 +77,14 @@ def listWorks():
 def requestMetadata():
     passedAuth = request.authorization
 
-    #check if authorization exists
+    if not passedAuth.password or not passedAuth.username:
+        return EmptyAuth
 
     if request.method == 'GET':
         response = requests.get('https://mds.test.datacite.org/metadata',
                     auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password))
+        return buildResponse(response)
+
     if request.method == 'POST':
         # get the passed metadata XML file
         metadata = request.data['xml']
@@ -90,45 +93,60 @@ def requestMetadata():
                     auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password),
                     data = metadata.encode('utf-8'),
                     headers = {'Content-Type': 'application/xml;charset=UTF-8'})
+
+        return buildResponse(response)
+    
     else:
-        response = None 
-    return response.content
+        return PostGet405
 
 @app.route('/doi', methods=['GET', 'POST'])
 def requestDOI():
     passedAuth = request.authorization
 
+    if not passedAuth.password or not passedAuth.username:
+        return EmptyAuth
+
     if request.method == 'GET':
         response = requests.get("https://mds.test.datacite.org/doi", 
                     auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password) )
+        return buildResponse(response)
 
     if request.method == 'POST':
         metadata = request.data['xml']
         response = requests.post("https://mds.test.datacite.org/doi",
                     auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password),
                     data = metadata.encode('utf-8'),
-                    headers = {'Content-Type': 'application/xml;charset=UTF-8'})
+                    headers = {'Content-Type': 'application/xml;charset=UTF-8'}) 
+        return buildResponse(response)
+
     else:
-        response = None
-    return response.content
+        return PostGet405
 
 @app.route('/doi')
 def getDOI():
     passedAuth = request.authorization
 
+    if not passedAuth.password or not passedAuth.username:
+        return EmptyAuth
+
     response = requests.get("https://mds.test.datacite.org/doi",
                 auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password))
             
-    return response.content
+    return buildResponse(response)
 
 @app.route('/media/<path:DOI>', methods=['GET', 'POST'])
 def getMedia(DOI):
     passedAuth = request.authorization
+
+    if not passedAuth.password or not passedAuth.username:
+        return EmptyAuth
+
     endpoint = "/".join(["https://mds.test.datacite.org/media", DOI])
 
     if request.method == 'GET':
         response = requests.get(endpoint,
                     auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password) )
+        return buildResponse(response)
 
     if request.method == 'POST':
         # get the media file
@@ -138,10 +156,10 @@ def getMedia(DOI):
                     auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password),
                     data = metadta.encode('utf-8'),
                     headers = {'Content-Type':'text/plain;charset=UTF-8'})
-    else:
-        response = None
-    return response.content
+        return buildResponse(response)
 
+    else:
+        return PostGet405
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)

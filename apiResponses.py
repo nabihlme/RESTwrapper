@@ -1,12 +1,12 @@
 from flask import Response as flaskResponse
 import requests
 
-def buildResponse(ReqResponse):
+def buildResponse(ReqResponse, ContentType="text/plain"):
     '''Transfer requests response object into a flask Response object'''
     builtResponse = flaskResponse(
             status = ReqResponse.status_code,
             response = ReqResponse.content, 
-            mimetype = 'text/plain'
+            mimetype = ContentType 
             )
     return builtResponse 
 
