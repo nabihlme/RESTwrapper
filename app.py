@@ -4,6 +4,7 @@
 from flask import Flask, request, Response
 from functools import wraps
 import requests
+from apiResponses import *
 
 app = Flask('DataCiteREST')
 app.config['Debug'] = True
@@ -14,60 +15,52 @@ app.config['Testing'] = True
 # DataCite REST
 ########################
 
-#Create some different error response objects for flask
-#405response = Response(
-#            'Method Not Allowed.\n'
-#            'Post or Get at this Endpoint', 405,
-#            {'WWW-Authenticate': 'Basic realm="Login Required"'})
-
-
-
 @app.route('/data-centers')
 def listDataCenters():
     include = {'include':request.args.get('include')}
     response = requests.get("https://api.datacite.org/data-centers/", 
                             params=include)
     # include control flow for response.status_code
-    return response.content
+    return buildResponse(response)
 
 @app.route('/data-centers/<DataCenterID>')
 def getDataCenter(DataCenterID):
     url = "/".join(["https://api.datacite.org/data-centers/", DataCenterID])
     response = requests.get(url)
-    return response.content
+    return buildResponse(response)
 
 @app.route('/members')
 def listMembers():
     response = requests.get("https://api.datacite.org/members/")
-    return response.content
+    return buildResponse(response)
 
 @app.route('/members/<MemberID>')
 def getMember(MemberID):
     url = "/".join(["https://api.datacite.org/members/", MemberID])
     response = requests.get(url)
-    return response.content
+    return buildResponse(response)
 
 @app.route('/contributors')
 def getPerson():
     response = requests.get("https://api.datacite.org/contributors/")
-    return response.content
+    return buildResponse(response)
 
 @app.route('/people/<PersonID>')
 def listPeople(PersonID):
     url = "/".join(["https://api.datacite.org/person", PersonID])
     response = requests.get(url)
-    return response.content
+    return buildResponse(response)
 
 @app.route('/works/<path:DOI>')
 def getWork(DOI):
     url = "/".join(["https://api.datacite.org/works", DOI])
     response = requests.get(url)
-    return response.content
+    return buildResponse(response)
 
 @app.route('/works')
 def listWorks():
     response = requests.get("https://api.datacite.org/works")
-    return response.content
+    return buildResponse(response)
 
 #####################
 # DataCite MDS
@@ -128,6 +121,8 @@ def getDOI():
 
     if not passedAuth.password or not passedAuth.username:
         return EmptyAuth
+    
+    print(request.authorization)
 
     response = requests.get("https://mds.test.datacite.org/doi",
                 auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password))
