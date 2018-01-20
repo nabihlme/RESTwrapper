@@ -18,7 +18,6 @@ class FlaskTestCase(unittest.TestCase):
         response = self.app.get('/data-centers')
         self.assertEqual(response.status, '200 OK')
 
-
     # List of Tests
         # post metadata
         # read in example test metadata
