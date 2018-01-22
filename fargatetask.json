@@ -1,14 +1,13 @@
 {
-    "family": "wrapper", 
+    "family": "wrapper-awsvpc", 
     "networkMode": "awsvpc", 
     "containerDefinitions": [
         {
             "name": "wrapper-task", 
-            "image": "arn:aws:ecr:us-east-1:280922329489:repository/wrapper", 
+            "image": "280922329489.dkr.ecr.us-east-1.amazonaws.com/flaskwrapper:latest", 
             "portMappings": [
                 {
-                    "containerPort": 8000, 
-                    "hostPort": 8000, 
+                    "containerPort": 80, 
                     "protocol": "tcp"
                 }
             ], 

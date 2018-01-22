@@ -7,5 +7,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
 COPY apiResponses.py .
-EXPOSE 5000
-CMD [ "python", "app.py"]
+EXPOSE 80
+CMD ["python", "app.py"]

@@ -1,0 +1,42 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "containerDefinitions": [
+        {
+            "name": "flaskwrapper",
+            "image": "280922329489.dkr.ecr.us-east-1.amazonaws.com/flaskwrapper:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": "80",
+                    "protocol": "tcp"
+                }
+            ],
+            "environment": null,
+            "mountPoints": null,
+            "volumesFrom": null,
+            "hostname": null,
+            "user": null,
+            "workingDirectory": null,
+            "extraHosts": null,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/mytask",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "ulimits": null,
+            "dockerLabels": null
+        }
+    ],
+    "volumes": [],
+    "networkMode": "awsvpc",
+    "memory": "512",
+    "cpu": "256",
+    "executionRoleArn": "arn:aws:iam::280922329489:role/ecsTaskExecutionRole",
+    "family": "mytask",
+    "taskRoleArn": "arn:aws:iam::280922329489:role/ecsTaskExecutionRole"
+}

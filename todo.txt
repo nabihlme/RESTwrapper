@@ -1,0 +1,14 @@
+rebuild and push the image to ECR using port 80
+    - issue is how to 
+
+define new task with proper ports and shit then
+
+    make a new security group
+
+    - how to access with proper security group permissions/ACL rules
+
+run and define the correct task
+
+aws ecs run-task --cluster awsvpc-ecs-demo --network-configuration "awsvpcConfiguration={subnets=["subnet-c070009b"],securityGroups=["sg-9effe8e4"]}" nginx-awsvpc $ aws ecs describe-tasks --cluster awsvpc-ecs-demo --task $ECS_TASK_ARN --query tasks[0]
+
+reupload all the tasks and new services for fargate
