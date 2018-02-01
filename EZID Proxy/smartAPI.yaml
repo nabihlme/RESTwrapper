@@ -1,0 +1,60 @@
+openapi: 3.0.0
+servers:
+  - url: "http://34.232.46.41"
+    description: "AWS Test Server"
+info:
+  description: "A proxy for the EZID minting service, deployed on amazon"
+  version: "1.0.0"
+  title: "NIHdc-EZID Proxy"
+  contact:
+    email: maxlevinson1@mgh.harvard.edu
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: Mint
+    description: "Must use apitest authentication and test prefix"
+  - name: Query
+    description: "Requires no authentication and returns metadata"
+paths:
+  '/minid/mint':
+    put:
+      tags:
+        - Mint
+      summary: Mint a new identifier through EZID
+      operationId: mintID 
+      description: Posts a JSON body to the endpoint and then mints an EZID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              # needs to one of my many schemas
+              oneOf:
+                $ref: '#/components/schemas/'
+      responses:
+        '200':
+          description: A successfull mint will return a plaintext body and the ID
+          content:
+            text/plain:
+              schema:
+                  type: string
+        '400':
+          description: bad input parameter
+
+  '/minid/{ID}':
+    get:
+      tags:
+        - Query
+      parameters:
+        - in: path
+          name: ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Good Job
+      
+      
+components:
+  schemas:
+

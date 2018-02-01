@@ -1,0 +1,17 @@
+Local Docker Tests http://0.0.0.0:80/
+==========================================================================================
+curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "@context": "http://schema.org", "@type": "DatasetPublished", "@id": "ark:/99999/fk4GTExDataPub1", "identifier": "https://www.gtexportal.org/home/datasets", "includedInDataCatalogue": "ark:/99999/fk4GTEx", "dateCreated": "1-29-2018", "datePublished": "1-29-2018", "distribution": "V7", "author": "Broad Institute", "name": "GTEx Analysis V7 (dbGaP Accession phs000424.v7.p2)", "description": "GTEx most up to date analysis", "keywords": "none", "version": "V7", "citation": "none"}' http://0.0.0.0:80/minid/mint
+
+
+curl -X GET http://0.0.0.0:80/minid/ark:/99999/fk4GTExDataPub1
+
+curl -X DELETE --user apitest:apitest http://0.0.0.0:80/minid/ark:/99999/fk4GTExDataPub1
+
+
+Tests on amazon http://34.232.46.41
+==========================================================================================
+curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "@context": "http://schema.org", "@type": "DatasetPublished", "@id": "ark:/99999/fk4GTExDataPub1", "identifier": "https://www.gtexportal.org/home/datasets", "includedInDataCatalogue": "ark:/99999/fk4GTEx", "dateCreated": "1-29-2018", "datePublished": "1-29-2018", "distribution": "V7", "author": "Broad Institute", "name": "GTEx Analysis V7 (dbGaP Accession phs000424.v7.p2)", "description": "GTEx most up to date analysis", "keywords": "none", "version": "V7", "citation": "none"}' http://34.232.46.41/minid/mint
+
+curl -X GET http://34.232.46.41/minid/ark:/99999/fk4GTExDataPub1
+
+curl -X DELETE --user apitest:apitest http://34.232.46.41/minid/ark:/99999/fk4GTExDataPub1

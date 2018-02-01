@@ -1,0 +1,98 @@
+√ 1.0 Accept the Martin's JSON-LD Body -> submit to EZID with profile 'dcppc'
+
+    √ DatasetUnpublished
+    √ DatasetPublished
+    √ DatasetDownload
+      √ Need pointer to datasets?
+      √ add anyway
+
+    √ minid profile
+    √ - Change for consistency -> create all request URLS in the parse dataset
+
+√ 1.1 For minting: change path to not require the desired ARK in the URL just put it in the payload
+
+√ 1.2 Test Changes Submit and Delete
+    √ Minid
+    √ DataCatalogue    
+    √ DatasetUnpublished
+    √ DatasetPublished
+    √ DatasetDownload
+
+
+√ 2.0 Deploy as an additional service to fargate cluster
+    √ AWS tests
+
+3.0 Write Smart API Spec for 
+    √ 3.1 Point Specification at AWS deployment
+    √ 3.2 Look at Linked Data requirements
+
+    Figure out how to update services programatically for every container push?
+      1.3 Eat Anvl function -> JSON-LD so that get returns a JSON-LD
+
+GET Path needs to enable content negotiation
+
+    Types of Content Supported:
+    √ If JSON-LD -> return AnvlMap(ChompAnvl(ResponseBody))
+    
+    
+    If text/html -> return rendered landing page 
+         - Landing page use Martin's example data
+
+        function to detect and return correctly formated 
+    
+        One Large Template
+            Takes the smaller argument
+
+        Function detect and produce little template
+
+        Little templates
+            Minid
+            datasetCatalogue
+            datasetUnpublished
+            datasetPublished
+            datasetDownload
+
+    else: ANVL from EZID
+
+Standardize Bad Responses in JSON, and then make them more flexible!
+    - Missing parameter becomes function taking list of missing parameters
+
+4.0 Set Up mongo server to database New ID's
+    Amazon EC2 instance with mongo, and accessible with authentication
+    Ocassionally run mongodump to S3 bucket
+    Have script to 
+
+
+    - Need just a global list of everything minted by my service
+        - even just for developement purposes
+    4.1 Set up react app to just make a table from all the links
+
+5.0 Get some scripts ready for Jared for a bulk upload in Ipython
+    - when halfway done, send email asking for an example metadata file, also send requirements
+
+
+Notes - should profile have object subtypes, so i can tell the type of object when I request it?
+    profile = 'dcppc' or profile = 'dcppc.DatasetUnpublished'
+
+Big To Do
+
+Attribute Validataion 
+=====================================
+    make sure data type is correct
+        - identifiers follow regex's for arks, uuids, or doi's
+        - arks that point to are valid
+            - def ValidId(PassedID):
+                response = requests.get('ezid.clib.../'+PassedId)
+                if CheckResponse(Response):
+
+                else:
+                    MintID? Return Error Messages -> requires different metadata to mint new IDs
+        - dates have a specific format
+
+
+Authentication after Landing Page -> much later
+====================================
+    - I want this file/dataset -> pass authentication to get the location
+        - Tokens and authentication is easy
+    - Paperwork and humans stand in the way 
+    - If you dont have access -> heres what to do!

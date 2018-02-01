@@ -1,0 +1,145 @@
+# Tests for Every Structure
+
+# Minid example
+==========================================================================================
+{
+	"identifier": "ark:/99999/fk4r8059v",
+	"created": "2015-11-10 04:44:44.387671",
+	"creator": "0000-0003-2129-5269",
+	"checksum": "cacc1abf711425d3c554277a5989df269cefaa906d27f1aaa72205d30224ed5f",
+	"checksumMethod":"sha1",
+	"status": "ACTIVE",
+	"locations": ["http://bd2k.ini.usc.edu/assets/all-hands-meeting/minid_v0.1_Nov_2015.pdf"],
+	"titles": ["minid: A BD2K Minimal Viable Identifier Pilot v0.1"]
+}
+
+# Example Curl to Put to Local
+curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "identifier": "ark:/99999/fk4r8059v", "created": "2015-11-10 04:44:44.387671", "creator": "0000-0003-2129-5269", "checksum": "cacc1abf711425d3c554277a5989df269cefaa906d27f1aaa72205d30224ed5f", "checksumMethod":"sha1","status": "ACTIVE","locations": ["http://bd2k.ini.usc.edu/assets/all-hands-meeting/minid_v0.1_Nov_2015.pdf"], "titles": ["minid: A BD2K Minimal Viable Identifier Pilot v0.1"]}' http://127.0.0.1:5000/minid/mint
+
+# Test Get
+curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4r8059v
+
+# Test Delete
+curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4r8059v
+==========================================================================================
+
+# DataCatalogue example
+==========================================================================================
+	- Application for no auth issue ? 
+
+ { 
+ 	"@context" : "http://schema.org",
+ 	"@id" : "ark:/99999/fk4Gtex",
+ 	"@type": "DataCatalogue",
+ 	"identifier": "https://www.gtexportal.org/home/",
+ 	"name": "GTEx Portal"
+ }
+ 
+# Example Curl to Put To Local
+curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d  '{ "@context" : "http://schema.org", "@id" : "ark:/99999/fk4Gtex", "@type": "DataCatalogue", "identifier": "https://www.gtexportal.org/home/", "name": "GTEx Portal"}' http://127.0.0.1:5000/minid/mint
+ 
+ # test get
+curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4Gtex
+
+success: ark:/99999/fk4Gtex
+dcppc.context: http://schema.org
+_updated: 1517256421
+_target: https://www.gtexportal.org/home/
+_profile: dcppc
+dcppc.type: DataCatalogue
+_owner: apitest
+_export: yes
+_created: 1517256421
+_status: reserved
+_ownergroup: apitest
+dcppc.name: GTEx Portal
+
+ 
+ # test delete
+curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4Gtex
+==========================================================================================
+
+# DataUnpublished example
+
+{
+	"@context": "http://schema.org",
+	"@type": "DatasetUnpublished",
+	"@id": "ark:/99999/fk4GtexData1",
+	"identifier": "https://www.gtexportal.org/home/datasets",
+	"includedInDataCatalogue": "ark:/99999/fk4Gtex",
+	"dateCreated": "01-29-2018",
+	"distribution": "V7"
+}
+
+# example put
+curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "@context": "http://schema.org", "@type": "DatasetUnpublished", "@id": "ark:/99999/fk4GtexData1", "identifier": "https://www.gtexportal.org/home/datasets", "includedInDataCatalogue": "ark:/99999/fk4Gtex", "dateCreated": "01-29-2018", "distribution": "V7"}' http://127.0.0.1:5000/minid/mint
+
+# test get
+curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4GtexData1
+
+# test delete
+curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4GtexData1
+
+==========================================================================================
+
+
+# DatasetPublished example
+
+{
+	"@context": "http://schema.org",
+	"@type": "DatasetPublished",
+	"@id": "ark:/99999/fk4GtexDataPub1",
+	"identifier": "https://www.gtexportal.org/home/datasets",
+	"includedInDataCatalogue": "ark:/99999/fk4Gtex",
+	"dateCreated": "1-29-2018",
+	"datePublished": "1-29-2018",
+	"distribution": "V7",
+	"author": "Broad Institute",
+	"name": "GTEx Analysis V7 (dbGaP Accession phs000424.v7.p2)",
+	"description": "GTEx most up to date analysis",
+	"keywords": "none",
+	"version": "V7",
+	"citation": "none"
+}
+
+# example put
+
+curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "@context": "http://schema.org", "@type": "DatasetPublished", "@id": "ark:/99999/fk4GTExDataPub1", "identifier": "https://www.gtexportal.org/home/datasets", "includedInDataCatalogue": "ark:/99999/fk4GTEx", "dateCreated": "1-29-2018", "datePublished": "1-29-2018", "distribution": "V7", "author": "Broad Institute", "name": "GTEx Analysis V7 (dbGaP Accession phs000424.v7.p2)", "description": "GTEx most up to date analysis", "keywords": "none", "version": "V7", "citation": "none"}' http://127.0.0.1:5000/minid/mint
+
+# test get
+
+curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDataPub1
+
+# test delete
+
+curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDataPub1
+
+==========================================================================================
+
+# DataDownload example
+
+{
+	"@context": "http://schema.org",
+	"@type": "DataDownload" ,
+	"@id": "ark:/99999/fk4GTExDownload1",
+	"identifier": "https://www.gtexportal.org/home/datasets",
+	"inDataset": "ark:/99999/fk4GTExDataPub1",
+	"version": "madeup checksum1",
+	"contentSize": "100 bytes"
+}
+
+# example put
+
+curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{"@context": "http://schema.org","@type": "DataDownload","@id": "ark:/99999/fk4GTExDownload1","identifier": "https://www.gtexportal.org/home/datasets","inDataset": "ark:/99999/fk4GTExDataPub1","version": "madeup checksum1","contentSize": "100 bytes"}' http://127.0.0.1:5000/minid/mint
+
+# test get
+
+curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDownload1
+
+# test delete
+
+curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDownload1
+
+
+
+

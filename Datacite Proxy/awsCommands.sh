@@ -1,6 +1,5 @@
 # Retrieve the docker login command so you can authenticate your Docker client
 # to the registry
-#aws ecr get-login --no-include-email --region us-west-2
 
 #configure aws ecs-cli to use the right god damn region
 #aws ecs configure --region us-east-1 --default-launch-type FARGATE

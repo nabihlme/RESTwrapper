@@ -148,7 +148,7 @@ def getMedia(DOI):
 
         response = requests.post(endpoint,
                     auth = requests.auth.HTTPBasicAuth(passedAuth.username, passedAuth.password),
-                    data = metadta.encode('utf-8'),
+                    data = metadata.encode('utf-8'),
                     headers = {'Content-Type':'text/plain;charset=UTF-8'})
         return buildResponse(response)
 
