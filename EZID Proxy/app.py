@@ -1,4 +1,4 @@
-from flask import Flask, request, Response 
+from flask import Flask, render_template, request, Response 
 import json
 import requests
 import re
@@ -78,11 +78,14 @@ def ParseDatasetUnpublished(PassedDict):
         - _profile  : 'NIHdc'
         - _status   : 'reserved'
     '''
-    NewDict = {}
+    NewDict = {} 
+
 
     NewDict['_profile'] = 'NIHdc'
     NewDict['_status'] = 'reserved'     
     NewDict['_target'] = PassedDict['identifier']
+
+    NewDict['NIDdc.type'] = 'DatasetUnpublished'
     NewDict['NIHdc.dateCreated'] = PassedDict['dateCreated']
     NewDict['NIHdc.distribution'] = PassedDict['distribution']
 
@@ -112,16 +115,18 @@ def ParseDatasetPublished(PassedDict):
     NewDict['_profile'] = 'NIHdc'
     NewDict['_status'] = 'reserved' 
     NewDict['_target'] = PassedDict['identifier']
-    NewDict['NIHdc.dataCatalogue'] = PassedDict['includedInDataCatalogue']
+
+    NewDict['NIHdc.type'] = 'DatasetPublished'
+    NewDict['NIHdc.includedInDataCatalogue'] = PassedDict['includedInDataCatalogue']
     NewDict['NIHdc.dateCreated'] = PassedDict['dateCreated']
     NewDict['NIHdc.datePublished'] = PassedDict['datePublished']
     NewDict['NIHdc.distribution'] = PassedDict['distribution']
-    NewDict['NIHdc.datasetAuthor'] = PassedDict['author']
-    NewDict['NIHdc.datasetName'] = PassedDict['name']
-    NewDict['NIHdc.datasetDescription'] = PassedDict['description']
-    NewDict['NIHdc.datasetKeywords'] = PassedDict['keywords']
-    NewDict['NIHdc.datasetVersion'] = PassedDict['version']
-    NewDict['NIHdc.datasetCitation'] = PassedDict['citation']
+    NewDict['NIHdc.author'] = PassedDict['author']
+    NewDict['NIHdc.name'] = PassedDict['name']
+    NewDict['NIHdc.description'] = PassedDict['description']
+    NewDict['NIHdc.keywords'] = PassedDict['keywords']
+    NewDict['NIHdc.version'] = PassedDict['version']
+    NewDict['NIHdc.citation'] = PassedDict['citation']
 
     url = "/".join(["https://ezid.cdlib.org/id",PassedDict['@id']])
     return CompressAnvl(NewDict), url
@@ -142,6 +147,7 @@ def ParseDatasetDownload(PassedDict):
     NewDict['_profile'] = 'NIHdc'
     NewDict['_status'] = 'reserved' 
 
+    NewDict['NIHdc.type'] = 'DatasetDownload'
     NewDict['NIHdc.contentDataset'] = PassedDict['inDataset']
     NewDict['NIHdc.contentVersion'] = PassedDict['version']
     NewDict['NIHdc.contentSize'] =   PassedDict['contentSize']
@@ -168,6 +174,8 @@ def ParseDataCataloge(PassedDict):
     NewDict['_profile'] = 'NIHdc' 
     NewDict['_status'] = 'reserved'
     NewDict['_target'] = PassedDict['identifier']
+
+    NewDict['NIHdc.type'] = 'DataCatalogue'
     NewDict['NIHdc.context'] = PassedDict['@context']
     NewDict['NIHdc.type'] = PassedDict['@type'] 
     NewDict['NIHdc.name'] = PassedDict['name']
@@ -236,28 +244,24 @@ def ParseJSONLD(ResponseContent, ID):
             MappingDictionary['keywords'] = RawDictionary['NIHdc.keywords']
             MappingDictionary['version'] = RawDictionary['NIHdc.version']
             MappingDictionary['citation'] = RawDictionary['NIHdc.citation']
-
+            
         if MappingDictionary['@type']  == 'DataDownload':
             MappingDictionary['inDataset'] = RawDictionary['NIHdc.inDataset']
             MappingDictionary['version'] = RawDictionary['NIHdc.version']
             MappingDictionary['contentSize'] = RawDictionary['NIHdc.contentSize']
 
+        
+        return MappingDictionary
+
     else:
         # return unknown profile
-        return Response( status= 400,
-                mimetype = "application/json",
-                response = json.dumps('{"error":"unknown profile type cannot parse"}') 
-                )
+        return json.dumps('{"error":"unknown profile type cannot parse"}') 
+                
 
-    return Response( status = 200,
-            mimetype = 'application/ld+json; profile="http://schema.org"',
-            response = json.dumps(MappingDictionary)
-            )
 
-#def RenderLandingPage(ResponseContent, ID):
-#    Payload = ParseJSONLD(ResponseContent, ID)
-#    return render_template('hello.html'    
-
+def RenderLandingPage(ResponseContent, ID):
+    Payload = ParseJSONLD(ResponseContent, ID)
+    return render_template('template.html', Payload=Payload)
 
 app = Flask('EZIDwraper')
 app.config['Debug'] = True
@@ -349,15 +353,25 @@ def runId(ID):
         if response.status_code == 200: 
             # JSON-LD in the schema.org profile
             if request.headers['Accept'] == 'application/ld+json; profile="http://schema.org"':
-                return ParseJSONLD(response.content, ID)
+
+                return Response( status = 200,
+                mimetype = 'application/ld+json; profile="http://schema.org"',
+                response = json.dumps(ParseJSONLD(response.content, ID))
+                )
 
             # if text/html render a landing page
             if request.headers['Accept'] == 'text/html':
-                return RenderLandingPage(response.content)
+                return RenderLandingPage(response.content, ID)
+
+            # if text/plain return EZID plaintext response
+                # return buildResponse(response)
 
             # return a citation format
             if request.headers['Accept'] == 'text/x-bibliography':
                 return UnfinishedBuisness
+
+            else:
+                return RenderLandingPage(response.content, ID)
  
         # TK: check response status, if it doesn't exist will cause errors
             # BE MORE PRECISE: read the plaintext errors
@@ -365,7 +379,8 @@ def runId(ID):
             return NoID
 
         else:
-            return buildResponse(response)
+            return RenderLandingPage(response.content, ID)
+
 
     if request.method == 'DELETE':
 
