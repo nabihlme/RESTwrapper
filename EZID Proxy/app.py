@@ -212,12 +212,15 @@ def ParseJSONLD(ResponseContent, ID):
     MappingDictionary = {}
 
     if RawDictionary['_profile'] == 'minid': 
+        MappingDictionary['identifier'] = RawDictionary['_target']
         MappingDictionary['created'] = RawDictionary['minid.created']
-        MappingDictionary['creator'] = RawDictionary['minid.checksum']
+        MappingDictionary['creator'] = RawDictionary['minid.creator'] 
+        MappingDictionary['checksum'] = RawDictionary['minid.checksum']
         MappingDictionary['checksumMethod'] = RawDictionary['minid.checksumMethod']
         MappingDictionary['status'] = RawDictionary['minid.status']
         MappingDictionary['locations'] = RawDictionary['minid.locations'].split(";")
         MappingDictionary['titles'] = RawDictionary['minid.titles'].split(";")
+        ResponseType = 'minid'
 
     if RawDictionary['_profile'] == 'NIHdc':
         MappingDictionary['@context'] = "http://schema.org"
@@ -227,11 +230,13 @@ def ParseJSONLD(ResponseContent, ID):
         
         if MappingDictionary['@type'] == 'DataCatalogue':
             MappingDictionary['name'] = RawDictionary['NIHdc.name']
+            ResponseType = 'DataCatalogue'
 
         if MappingDictionary['@type'] == 'DatasetUnpublished':
             MappingDictionary['includedInDataCatalogue'] = RawDictionary['NIHdc.includedInDataCatalogue']
             MappingDictionary['dateCreated'] = RawDictionary['NIHdc.dateCreated']
             MappingDictionary['distribution'] = RawDictionary['NIHdc.distribution']
+            ResponseType = 'DatasetUnpublished'
 
         if MappingDictionary['@type']  == 'DatasetPublished':
             MappingDictionary['includedInDataCatalogue'] = RawDictionary['NIHdc.includedInDataCatalogue']
@@ -244,24 +249,28 @@ def ParseJSONLD(ResponseContent, ID):
             MappingDictionary['keywords'] = RawDictionary['NIHdc.keywords']
             MappingDictionary['version'] = RawDictionary['NIHdc.version']
             MappingDictionary['citation'] = RawDictionary['NIHdc.citation']
+            ResponseType = 'DatasetPublished'
             
         if MappingDictionary['@type']  == 'DataDownload':
             MappingDictionary['inDataset'] = RawDictionary['NIHdc.inDataset']
             MappingDictionary['version'] = RawDictionary['NIHdc.version']
             MappingDictionary['contentSize'] = RawDictionary['NIHdc.contentSize']
-
-        
-        return MappingDictionary
-
-    else:
-        # return unknown profile
-        return json.dumps('{"error":"unknown profile type cannot parse"}') 
-                
-
+            ResponseType = 'DataDownload'
+ 
+    return MappingDictionary, ResponseType
 
 def RenderLandingPage(ResponseContent, ID):
-    Payload = ParseJSONLD(ResponseContent, ID)
-    return render_template('template.html', Payload=Payload)
+    Payload, ResponseType = ParseJSONLD(ResponseContent, ID)
+    if ResponseType == 'minid':
+        return render_template('minid.html', Payload=Payload)
+    if ResponseType == 'DataCatalogue':
+        return render_template('dataCatalogue.html', Payload=Payload)
+    if ResponseType == 'DatasetUnpublished':
+        return render_template('datasetUnpublished.html', Payload=Payload)
+    if ResponseType == 'DatasetPublished':
+        return render_template('datasetPublished.html', Payload=Payload)
+    if ResponseType == 'DataDownload':
+        return render_template('dataDownload.html', Payload=Payload)
 
 app = Flask('EZIDwraper')
 app.config['Debug'] = True

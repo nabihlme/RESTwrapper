@@ -38,34 +38,54 @@ GET Path needs to enable content negotiation
     If text/html -> return rendered landing page 
          - Landing page use Martin's example data
 
-        function to detect and return correctly formated 
-    
+                if Orchid can be URI 
+ 
         One Large Template
             Takes the smaller argument
 
-        Function detect and produce little template
+        √ Function detect and produce little template
+        Little templates using Dublin Core Metadata Standards
+            √ Minid
+                Creating Own Metadata For
+                <!-- checksum -->
+                <!-- checksumMethod --> 
+            √ datasetCatalogue       
+            √ datasetUnpublished
+                <!-- distribution -->
+            √ datasetPublished
+                distinguish between date published and date created
+                distribution
+                version
+                citation
+            √ datasetDownload
+                inDataset
+                version
+                contentSize
 
-        Little templates
-            Minid
-            datasetCatalogue
-            datasetUnpublished
-            datasetPublished
-            datasetDownload
-
-    else: ANVL from EZID
-
-Standardize Bad Responses in JSON, and then make them more flexible!
-    - Missing parameter becomes function taking list of missing parameters
-
-4.0 Set Up mongo server to database New ID's
-    Amazon EC2 instance with mongo, and accessible with authentication
-    Ocassionally run mongodump to S3 bucket
-    Have script to 
+Form Vaildation
+    -if passed an ark it must EXIST
 
 
-    - Need just a global list of everything minted by my service
-        - even just for developement purposes
-    4.1 Set up react app to just make a table from all the links
+Final testing,
+Build into docker run, and then
+Redeploy and document
+
+
+Extra Credit
+=======================================================
+Read JSON-LD designing JSON-LD apis?
+    - need to understand role of contexts in semantic web applications
+
+Writing a load balencer to spawn more fargate instances?
+
+Add schema.org metatags in html?
+    - Notes on Microdata
+
+4.0 Set Up neo4j to injest new id's
+    Dump to S3 bucket
+
+    Read out all of neo4j to cystoscape.js
+    Table, with tab indented
 
 5.0 Get some scripts ready for Jared for a bulk upload in Ipython
     - when halfway done, send email asking for an example metadata file, also send requirements
