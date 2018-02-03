@@ -17,10 +17,13 @@
 curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "identifier": "ark:/99999/fk4r8059v", "created": "2015-11-10 04:44:44.387671", "creator": "0000-0003-2129-5269", "checksum": "cacc1abf711425d3c554277a5989df269cefaa906d27f1aaa72205d30224ed5f", "checksumMethod":"sha1","status": "ACTIVE","locations": ["http://bd2k.ini.usc.edu/assets/all-hands-meeting/minid_v0.1_Nov_2015.pdf"], "titles": ["minid: A BD2K Minimal Viable Identifier Pilot v0.1"]}' http://127.0.0.1:5000/minid/mint
 
 # Test Get
-curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4r8059v
+curl -X GET -H 'Accept: text/html' http://127.0.0.1:5000/minid/ark:/99999/fk4r8059v
+
+curl -X GET -H 'Accept: application/ld+json' http://127.0.0.1:5000/minid/ark:/99999/fk4r8059v
 
 # Test Delete
 curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4r8059v
+
 ==========================================================================================
 
 # DataCatalogue example
@@ -35,11 +38,15 @@ curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4
  	"name": "GTEx Portal"
  }
  
+ ark:/12345/GTEx
+ 
+ ark:/12345/GTEx_Suppl
+ 
 # Example Curl to Put To Local
 curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d  '{ "@context" : "http://schema.org", "@id" : "ark:/99999/fk4Gtex", "@type": "DataCatalogue", "identifier": "https://www.gtexportal.org/home/", "name": "GTEx Portal"}' http://127.0.0.1:5000/minid/mint
  
  # test get
-curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4Gtex
+curl -X GET -H 'Accept: application/ld+json' http://127.0.0.1:5000/minid/ark:/99999/fk4Gtex
 
 success: ark:/99999/fk4Gtex
 dcppc.context: http://schema.org
@@ -54,7 +61,11 @@ _status: reserved
 _ownergroup: apitest
 dcppc.name: GTEx Portal
 
- 
+python string
+ID = "ark:/99999/fk4Gtex"
+DataCatalogue = "dcppc.context: http://schema.org\n_updated: 1517256421\n_target: https://www.gtexportal.org/home/\n_profile: dcppc\ndcppc.type: DataCatalogue\n_owner: apitest\n_export: yes\n_created: 1517256421\n_status: reserved\n_ownergroup: apitest\ndcppc.name: GTEx Portal"
+
+
  # test delete
 curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4Gtex
 ==========================================================================================
@@ -68,14 +79,18 @@ curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4
 	"identifier": "https://www.gtexportal.org/home/datasets",
 	"includedInDataCatalogue": "ark:/99999/fk4Gtex",
 	"dateCreated": "01-29-2018",
-	"distribution": "V7"
+	"distribution": "v7"
 }
 
 # example put
 curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "@context": "http://schema.org", "@type": "DatasetUnpublished", "@id": "ark:/99999/fk4GtexData1", "identifier": "https://www.gtexportal.org/home/datasets", "includedInDataCatalogue": "ark:/99999/fk4Gtex", "dateCreated": "01-29-2018", "distribution": "V7"}' http://127.0.0.1:5000/minid/mint
 
 # test get
-curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4GtexData1
+curl -X GET -H 'Accept: application/ld+json' http://127.0.0.1:5000/minid/ark:/99999/fk4GtexData1
+
+curl -X GET -H 'Accept: text/html' http://127.0.0.1:5000/minid/ark:/99999/fk4GtexData1
+
+curl -X GET https://ezid.cdlib.org/id/ark:/99999/fk4GtexData1
 
 # test delete
 curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4GtexData1
@@ -108,7 +123,9 @@ curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "@c
 
 # test get
 
-curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDataPub1
+curl -X GET -H 'Accept: text/html' http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDataPub1
+
+curl -X GET https://ezid.cdlib.org/id/minid/ark:/99999/fk4GTExDataPub1
 
 # test delete
 

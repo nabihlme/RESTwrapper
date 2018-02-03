@@ -6,5 +6,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
+COPY wsgi.py .
 EXPOSE 80
-CMD ["python", "app.py"]
+
+RUN uwsgi --socket 0.0.0.0:8000 --protocol=http -w wsgi

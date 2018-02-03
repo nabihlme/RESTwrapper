@@ -3,7 +3,6 @@ import json
 import requests
 import re
 
-
 def escape (s):
   return re.sub("[%:\r\n]", lambda c: "%%%02X" % ord(c.group(0)), s)
 
@@ -80,14 +79,14 @@ def ParseDatasetUnpublished(PassedDict):
     '''
     NewDict = {} 
 
-
     NewDict['_profile'] = 'NIHdc'
     NewDict['_status'] = 'reserved'     
     NewDict['_target'] = PassedDict['identifier']
 
-    NewDict['NIDdc.type'] = 'DatasetUnpublished'
+    NewDict['NIHdc.type'] = 'DatasetUnpublished'
     NewDict['NIHdc.dateCreated'] = PassedDict['dateCreated']
     NewDict['NIHdc.distribution'] = PassedDict['distribution']
+    NewDict['NIHdc.includedInDataCatalogue'] = PassedDict['includedInDataCatalogue']
 
     url = "/".join(["https://ezid.cdlib.org/id",PassedDict['@id']])
     return CompressAnvl(NewDict), url
@@ -148,8 +147,8 @@ def ParseDatasetDownload(PassedDict):
     NewDict['_status'] = 'reserved' 
 
     NewDict['NIHdc.type'] = 'DatasetDownload'
-    NewDict['NIHdc.contentDataset'] = PassedDict['inDataset']
-    NewDict['NIHdc.contentVersion'] = PassedDict['version']
+    NewDict['NIHdc.inDataset'] = PassedDict['inDataset']
+    NewDict['NIHdc.version'] = PassedDict['version']
     NewDict['NIHdc.contentSize'] =   PassedDict['contentSize']
 
     url = "/".join(["https://ezid.cdlib.org/id",PassedDict['@id']])
@@ -251,11 +250,11 @@ def ParseJSONLD(ResponseContent, ID):
             MappingDictionary['citation'] = RawDictionary['NIHdc.citation']
             ResponseType = 'DatasetPublished'
             
-        if MappingDictionary['@type']  == 'DataDownload':
+        if MappingDictionary['@type']  == 'DatasetDownload':
             MappingDictionary['inDataset'] = RawDictionary['NIHdc.inDataset']
             MappingDictionary['version'] = RawDictionary['NIHdc.version']
             MappingDictionary['contentSize'] = RawDictionary['NIHdc.contentSize']
-            ResponseType = 'DataDownload'
+            ResponseType = 'DatasetDownload'
  
     return MappingDictionary, ResponseType
 
@@ -269,7 +268,7 @@ def RenderLandingPage(ResponseContent, ID):
         return render_template('datasetUnpublished.html', Payload=Payload)
     if ResponseType == 'DatasetPublished':
         return render_template('datasetPublished.html', Payload=Payload)
-    if ResponseType == 'DataDownload':
+    if ResponseType == 'DatasetDownload':
         return render_template('dataDownload.html', Payload=Payload)
 
 app = Flask('EZIDwraper')
@@ -348,7 +347,6 @@ def mintID():
         else:
             return BadRequestBody
 
-
 @app.route('/minid/<path:ID>', methods=['GET', 'DELETE'])
 def runId(ID):
 
@@ -361,11 +359,11 @@ def runId(ID):
 
         if response.status_code == 200: 
             # JSON-LD in the schema.org profile
-            if request.headers['Accept'] == 'application/ld+json; profile="http://schema.org"':
-
+            if request.headers['Accept'] == 'application/ld+json':
+                Dictionary, ContentType = ParseJSONLD(response.content, ID)
                 return Response( status = 200,
-                mimetype = 'application/ld+json; profile="http://schema.org"',
-                response = json.dumps(ParseJSONLD(response.content, ID))
+                mimetype = 'application/ld+json; profile="http://schema.org"',  
+                response = json.dumps(Dictionary)
                 )
 
             # if text/html render a landing page
