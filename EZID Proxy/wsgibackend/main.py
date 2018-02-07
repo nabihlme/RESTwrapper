@@ -187,6 +187,9 @@ def ChompAnvl(PlainText):
         Taking a PlainText response body and parsing it into JSON-LD
     '''
     NewDict = {}
+    if isinstance(PlainText, bytes):
+        PlainText = str(PlainText, 'UTF-8')
+
     for element in PlainText.split("\n"):
         SplitUp = element.split(": ")
         if len(SplitUp)>1:
@@ -272,9 +275,9 @@ def RenderLandingPage(ResponseContent, ID):
         return render_template('dataDownload.html', Payload=Payload)
 
 app = Flask('EZIDwraper')
-app.config['Debug'] = True
-app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['Testing'] = True
+app.config['Debug'] = False
+app.config['TEMPLATES_AUTO_RELOAD'] = False
+app.config['Testing'] = False
 
 EmptyAuth = Response(
         response = 'Missing Login information, cannot mint/updates IDs without authentication',

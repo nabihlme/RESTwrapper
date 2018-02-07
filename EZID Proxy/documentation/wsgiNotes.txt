@@ -1,0 +1,84 @@
+Docker Command to run from file
+=======================================
+CMD [ "uwsgi", "--socket", "0.0.0.0:3031", \
+               "--plugins", "python3", \
+               "--protocol", "uwsgi", \
+               "--mount", "/app1=app/main.py", \
+               "--callable", "app"]
+=======================================
+
+
+Changing the ini file for wsgi
+=========================================
+#old and working
+[uwsgi]
+module = wsgi
+master = true
+processes = 3
+workers = 5
+
+http-socket = :80
+plugins = python3
+mount = /app1=app.py
+callable = app
+==========================================
+# socket connects to Nginx
+[uwsgi]
+module = wsgi
+master = true
+processes = 3
+workers = 5
+
+http-socket = :80
+plugins = python3
+mount = /app1=app.py
+callable = app
+
+======================================================================================
+
+have Nginx container with this conf, will pass every request
+	-run and bind to 80:80
+
+location / {
+    include uwsgi_params;
+    uwsgi_pass 127.0.0.1:3031;
+}
+
+then boot up wsgi accepting all traffic from 
+
+with --socket 127.0.0.1:3031
+
+
+Speeding up development having a base with all stuff installed 
+
+==================================================================================
+docker build -t wrapperbase:latest .
+==================================================================================
+FROM ubuntu:latest
+
+RUN apt-get update -y
+RUN apt-get upgrade -y
+RUN apt-get install -y python3 python3-pip build-essential
+
+COPY requirements.txt 
+RUN pip3 install -r requirements.txt
+
+====================================================================================
+docker build -t mywsgi:latest .
+docker run -p 80:80 mywsgi:latest
+test: 
+curl -X GET -H 'Accept: text/html' http://0.0.0.0:80/minid/ark:/99999/fk4r8059v
+curl -X GET -H 'Accept: text/html' http://127.0.0.0:80/minid/ark:/99999/fk4r8059v
+====================================================================================
+from wrapperbase:latest
+COPY . .
+EXPOSE 80
+
+CMD [ "uwsgi", "--ini", "new.ini"]
+
+
+Local Docker Tests http://0.0.0.0:80/
+=======================================================================================
+
+
+

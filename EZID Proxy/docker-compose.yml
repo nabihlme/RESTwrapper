@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+    backend:
+        build: 
+            context: wsgibackend
+
+    frontend:
+        build:
+            context: nginxfrontend
+        ports:
+            - 80:80 
+        depends_on:
+            - backend
