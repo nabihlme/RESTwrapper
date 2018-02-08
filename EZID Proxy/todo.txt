@@ -1,0 +1,89 @@
+Finish getting uwsgi and nginx up
+        √ debug this bytes string error?
+        √ switch to socket?
+    √ configure nginx proxy
+    √ Redeploy
+
+Stress Testing with tools
+https://www.3scale.net/2015/04/how-to-load-test-and-tune-performance-on-your-api-part-i/
+http://jmeter.apache.org/usermanual/get-started.html
+
+https://www.digitalocean.com/community/tutorials/how-to-benchmark-http-latency-with-wrk-on-ubuntu-14-04
+
+
+/minid/ark:/99999/fk4r8059v
+docker run williamyeh/wrk:latest -c 100 -t2 
+
+
+
+State of Unit Testing
+
+Understanding of overhead at fullstacks
+EZID batch interface
+    - Berkleedb?
+
+Get a take on how long it would take 
+    - Stress test 1,10,100,1000, ... minids
+      Give up when it takes too long!
+    - Compare directly to EZID
+
+Prepare for Talk
+    - Slides about what you did
+
+Form Vaildation
+    -if passed an ark it must EXIST
+
+Final testing,
+Build into docker run, and then
+Redeploy and document
+
+Writing a load balencer to spawn more fargate instances?
+    -NIH 
+
+Extra Credit
+=======================================================
+Read JSON-LD designing JSON-LD apis?
+    - need to understand role of contexts in semantic web applications
+
+One Large Template
+    Takes the smaller argument
+
+
+Add schema.org metatags in html?
+    - Notes on Microdata
+
+4.0 Set Up neo4j to injest new id's
+    Dump to S3 bucket
+
+    Read out all of neo4j to cystoscape.js
+    Table, with tab indented
+
+5.0 Get some scripts ready for Jared for a bulk upload in Ipython
+    - when halfway done, send email asking for an example metadata file, also send requirements
+
+
+Notes - should profile have object subtypes, so i can tell the type of object when I request it?
+    profile = 'dcppc' or profile = 'dcppc.DatasetUnpublished'
+
+Big To Do
+
+Attribute Validataion 
+=====================================
+    make sure data type is correct
+        - identifiers follow regex's for arks, uuids, or doi's
+        - arks that point to are valid
+            - def ValidId(PassedID):
+                response = requests.get('ezid.clib.../'+PassedId)
+                if CheckResponse(Response):
+
+                else:
+                    MintID? Return Error Messages -> requires different metadata to mint new IDs
+        - dates have a specific format
+
+
+Authentication after Landing Page -> much later
+====================================
+    - I want this file/dataset -> pass authentication to get the location
+        - Tokens and authentication is easy
+    - Paperwork and humans stand in the way 
+    - If you dont have access -> heres what to do!

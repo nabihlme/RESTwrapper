@@ -1,0 +1,20 @@
+version: 1
+task_definition:
+  ecs_network_mode: awsvpc
+  task_role_arn: arn:aws:iam::280922329489:role/ecsTaskExecutionRole
+  task_execution_role: ecsTaskExecutionRole 
+  task_size:
+    cpu_limit: 1024
+    mem_limit: 4096
+  services:
+    proxiedwrapper:
+        essential: true
+
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets: 
+        - subnet-15fca671 
+      security_groups: 
+        - sg-9e9a10e9
+      assign_public_ip: ENABLED
