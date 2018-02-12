@@ -4,17 +4,57 @@ Finish getting uwsgi and nginx up
     √ configure nginx proxy
     √ Redeploy
 
+√ Debug landing page issues
+
+Improving the Structure of the Application
+
+    /wsgibackend
+        README.MD
+        requirements.txt
+        Makefile
+        /Docker
+            Dockerfile
+            new.ini
+        /app
+            __init__.py
+            app.py       -> import everthing, just apps
+    
+            /components
+                responses.py  -> generic responses
+                objects.py -> objects for translating data objects
+
+            /templates
+               minid.html 
+               dataDownload.html
+               datasetCatalogue.html
+               datasetPublished.html
+               datasetUnpublished.html
+
+            /tests
+                test_functions.py     -> test the processing of body responses
+                test_deployment.py    -> test local/docker/
+
+Testing
+    √ Testing the RenderLandingPage function
+    - Testing the JSON-LD -> ANVL for submission
+
+Organizing with Classes for CoreMetadata Objects and Bound Methods?
+
+
 Stress Testing with tools
 https://www.3scale.net/2015/04/how-to-load-test-and-tune-performance-on-your-api-part-i/
 http://jmeter.apache.org/usermanual/get-started.html
 
 https://www.digitalocean.com/community/tutorials/how-to-benchmark-http-latency-with-wrk-on-ubuntu-14-04
 
+debug the render
 
-/minid/ark:/99999/fk4r8059v
-docker run williamyeh/wrk:latest -c 100 -t2 
+GET
+docker run williamyeh/wrk:latest -c 100 -t2 -H "Accept: application/ld+json" http://34.237.137.16/minid/ark:/99999/fk4r8059v
+docker run williamyeh/wrk:latest -c 100 -t2 -H "Accept: text/html" http://34.237.137.16/minid/ark:/99999/fk4r8059v
+docker run wrk -c 100 -t2 ezid.cdlib.org/id/99999/fk4r8059v
 
-
+PUT?
 
 State of Unit Testing
 

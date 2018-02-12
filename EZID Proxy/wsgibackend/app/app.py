@@ -187,15 +187,15 @@ def ChompAnvl(PlainText):
         Taking a PlainText response body and parsing it into JSON-LD
     '''
     NewDict = {}
+    
     if isinstance(PlainText, bytes):
-        PlainText = str(PlainText, 'UTF-8')
+        PlainText = PlainText.decode('UTF-8')
 
     for element in PlainText.split("\n"):
-        SplitUp = element.split(": ")
+        SplitUp = element.split(": ", 1)
         if len(SplitUp)>1:
             NewDict[SplitUp[0]] = SplitUp[1]
     return NewDict
-
 
 def ParseJSONLD(ResponseContent, ID):
     '''
@@ -220,8 +220,8 @@ def ParseJSONLD(ResponseContent, ID):
         MappingDictionary['checksum'] = RawDictionary['minid.checksum']
         MappingDictionary['checksumMethod'] = RawDictionary['minid.checksumMethod']
         MappingDictionary['status'] = RawDictionary['minid.status']
-        MappingDictionary['locations'] = RawDictionary['minid.locations'].split(";")
-        MappingDictionary['titles'] = RawDictionary['minid.titles'].split(";")
+        MappingDictionary['locations'] = list(RawDictionary['minid.locations'].split(";"))
+        MappingDictionary['titles'] = list(RawDictionary['minid.titles'].split(";"))
         ResponseType = 'minid'
 
     if RawDictionary['_profile'] == 'NIHdc':
@@ -266,7 +266,7 @@ def RenderLandingPage(ResponseContent, ID):
     if ResponseType == 'minid':
         return render_template('minid.html', Payload=Payload)
     if ResponseType == 'DataCatalogue':
-        return render_template('dataCatalogue.html', Payload=Payload)
+        return render_template('datasetCatalogue.html', Payload=Payload)
     if ResponseType == 'DatasetUnpublished':
         return render_template('datasetUnpublished.html', Payload=Payload)
     if ResponseType == 'DatasetPublished':

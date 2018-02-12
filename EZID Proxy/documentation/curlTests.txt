@@ -1,5 +1,6 @@
 # Tests for Every Structure
 
+0.0.0.0/minid/ark:/99999/fk4r8059v
 # Minid example
 ==========================================================================================
 {
@@ -12,6 +13,7 @@
 	"locations": ["http://bd2k.ini.usc.edu/assets/all-hands-meeting/minid_v0.1_Nov_2015.pdf"],
 	"titles": ["minid: A BD2K Minimal Viable Identifier Pilot v0.1"]
 }
+
 
 # Example Curl to Put to Local
 curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "identifier": "ark:/99999/fk4r8059v", "created": "2015-11-10 04:44:44.387671", "creator": "0000-0003-2129-5269", "checksum": "cacc1abf711425d3c554277a5989df269cefaa906d27f1aaa72205d30224ed5f", "checksumMethod":"sha1","status": "ACTIVE","locations": ["http://bd2k.ini.usc.edu/assets/all-hands-meeting/minid_v0.1_Nov_2015.pdf"], "titles": ["minid: A BD2K Minimal Viable Identifier Pilot v0.1"]}' http://127.0.0.1:5000/minid/mint
@@ -125,6 +127,8 @@ curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{ "@c
 
 curl -X GET -H 'Accept: text/html' http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDataPub1
 
+curl -X GET -H 'Accept: application/ld+json' http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDataPub1
+
 curl -X GET https://ezid.cdlib.org/id/minid/ark:/99999/fk4GTExDataPub1
 
 # test delete
@@ -133,11 +137,11 @@ curl -X DELETE --user apitest:apitest http://127.0.0.1:5000/minid/ark:/99999/fk4
 
 ==========================================================================================
 
-# DataDownload example
+# DatasetDownload example
 
 {
 	"@context": "http://schema.org",
-	"@type": "DataDownload" ,
+	"@type": "DatasetDownload" ,
 	"@id": "ark:/99999/fk4GTExDownload1",
 	"identifier": "https://www.gtexportal.org/home/datasets",
 	"inDataset": "ark:/99999/fk4GTExDataPub1",
@@ -151,7 +155,12 @@ curl -X PUT --user apitest:apitest -H 'Content-Type: application/json' -d '{"@co
 
 # test get
 
+curl -X GET -H 'Accept: application/ld+json' http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDownload1
+
 curl -X GET http://127.0.0.1:5000/minid/ark:/99999/fk4GTExDownload1
+
+curl -X GET https://ezid.cdlib.org/id/ark:/99999/fk4GTExDownload1
+
 
 # test delete
 
