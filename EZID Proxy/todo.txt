@@ -1,13 +1,5 @@
-Finish getting uwsgi and nginx up
-        √ debug this bytes string error?
-        √ switch to socket?
-    √ configure nginx proxy
-    √ Redeploy
-
-√ Debug landing page issues
-
-Improving the Structure of the Application
-
+File Structure
+===============
     /wsgibackend
         README.MD
         requirements.txt
@@ -36,9 +28,40 @@ Improving the Structure of the Application
 
 Testing
     √ Testing the RenderLandingPage function
-    - Testing the JSON-LD -> ANVL for submission
+    √ Testing the JSON-LD -> ANVL for submission
 
-Organizing with Classes for CoreMetadata Objects and Bound Methods?
+√ Organizing with Classes for CoreMetadata Objects and Bound Methods?
+
+√ FactoryFunction
+            class Animal(object):
+                @staticmethod
+                def get_animal_which_makes_this_noise(noise):
+                    if noise=="meow":
+                        return Cat()
+                    elif noise == 'woof':
+                        return Dog()
+
+√ Backup oldapp.py
+√ Remove all garbage, import objects, move all reposnses as well
+
+
+Change All Response Types to JSON-LD
+More mimetypes for JSON-LD
+
+Implement Validation, Does this ARK exist? 
+
+Testing the Main Flask App
+
+Makefile
+
+CI/CD
+
+Unimportant notes
+=================
+Now not setting _target/ needs to be formatted to url
+identifier/@id will return with ezid url rather than the ark *shrug*
+
+
 
 
 Stress Testing with tools

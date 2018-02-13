@@ -5,6 +5,10 @@ from objects import *
 #============================================================================================#
 
 class BasicTests():
+    '''
+    Tests for all of the objects, see if data is being processed correctly
+    from both sides, and ends up equivlent
+    '''
     def test_objects_exist(self):
         self.assertIsNotNone(self.ANVL)
         self.assertIsNotNone(self.JSON)
@@ -55,8 +59,68 @@ class BasicTests():
         self.assertEqual(json.loads(jsonJSON), json.loads(self.JSONraw))
         self.assertEqual(json.loads(anvlJSON), json.loads(self.JSONraw))
 
+class FactoryTest():
+    '''
+    Tests the Factory Function
+        Does it create objects
+        Does it create proper objects
+        Does it create the important attributes
+    '''
 
-class MinidTest(unittest.TestCase, BasicTests):
+    def test_created(self):
+        self.assertIsNotNone(self.PayloadJSON)
+        self.assertIsNotNone(self.PayloadJSON.JSONdict)
+        self.assertIsNotNone(self.PayloadANVL)
+        self.assertIsNotNone(self.PayloadANVL.ANVLdict)
+
+    def test_appropriate_subclass(self):
+        self.assertIsInstance(self.PayloadJSON, type(self.JSON))
+        self.assertIsInstance(self.PayloadANVL, type(self.ANVL))
+        self.assertIsInstance(self.PayloadANVL, type(self.PayloadJSON))
+
+    def test_native_dicts_equal(self):
+        self.assertDictEqual(self.PayloadANVL.ANVLdict, self.ANVL.ANVLdict)
+        self.assertDictEqual(self.PayloadJSON.JSONdict, self.JSON.JSONdict)
+
+    def test_translated_dicts_equal(self):
+        self.PayloadANVL.ANVLtoJSON()
+        self.PayloadJSON.JSONtoANVL()
+
+        self.ANVL.ANVLtoJSON()
+        self.JSON.JSONtoANVL()
+
+        self.assertDictEqual(self.PayloadANVL.JSONdict, self.ANVL.JSONdict)
+        self.assertDictEqual(self.PayloadJSON.ANVLdict, self.JSON.ANVLdict)
+
+        self.assertDictEqual(self.PayloadANVL.ANVLdict, self.PayloadJSON.ANVLdict)
+        self.assertDictEqual(self.PayloadANVL.JSONdict, self.PayloadJSON.JSONdict)
+
+    def test_output_payload(self):
+        self.PayloadANVL.ANVLtoJSON()
+        self.PayloadJSON.JSONtoANVL()
+
+        self.ANVL.ANVLtoJSON()
+        self.JSON.JSONtoANVL()
+
+        self.assertEqual(self.PayloadANVL.returnJSON(), self.PayloadJSON.returnJSON())
+        # not really appropriate, the order of the keys in the plaintext dont matter
+            # if it passes above test, and dicts are equal -> probobly fine
+        #self.assertEqual(self.PayloadANVL.returnANVL(), self.PayloadJSON.returnANVL())
+
+    def test_url_on_convert(self):
+        self.PayloadANVL.URL = None
+        self.PayloadJSON.URL = None
+        self.PayloadANVL.JSONdict = None
+        self.PayloadJSON.ANVLdict = None
+
+        self.PayloadANVL.ANVLtoJSON()
+        self.PayloadJSON.JSONtoANVL()
+
+        self.assertIsNotNone(self.PayloadJSON.URL)
+        self.assertIsNone(self.PayloadANVL.URL)
+        
+
+class MinidTest(unittest.TestCase, BasicTests, FactoryTest):
     def setUp(self):
         self.maxDiff = None
 
@@ -90,10 +154,13 @@ class MinidTest(unittest.TestCase, BasicTests):
         self.JSON = Minid(ResponseText = self.JSONraw, Type = "JSON")
         self.ANVL = Minid(ResponseText = self.ANVLraw, Type = "ANVL")
 
+        self.PayloadJSON = PayloadFactory(ResponseText = self.JSONraw, Type = "JSON")
+        self.PayloadANVL = PayloadFactory(ResponseText = self.ANVLraw, Type = "ANVL")
+
     def tearDown(self):
         pass
 
-class DataCatalogTest(unittest.TestCase, BasicTests):
+class DataCatalogTest(unittest.TestCase, BasicTests, FactoryTest):
     def setUp(self):
         self.maxDiff = None
 
@@ -108,11 +175,14 @@ class DataCatalogTest(unittest.TestCase, BasicTests):
         self.JSON = DataCatalog(ResponseText = self.JSONraw, Type = "JSON")
         self.ANVL = DataCatalog(ResponseText = self.ANVLraw, Type = "ANVL")
 
+        self.PayloadJSON = PayloadFactory(ResponseText = self.JSONraw, Type = "JSON")
+        self.PayloadANVL = PayloadFactory(ResponseText = self.ANVLraw, Type = "ANVL")
+
     def tearDown(self):
         pass
 
 
-class DatasetTest(unittest.TestCase, BasicTests):
+class DatasetTest(unittest.TestCase, BasicTests, FactoryTest):
     def setUp(self):
         self.maxDiff = None
 
@@ -127,24 +197,30 @@ class DatasetTest(unittest.TestCase, BasicTests):
         self.JSON = Dataset(ResponseText = self.JSONraw, Type = "JSON")
         self.ANVL = Dataset(ResponseText = self.ANVLraw, Type = "ANVL")
 
+        self.PayloadJSON = PayloadFactory(ResponseText = self.JSONraw, Type = "JSON")
+        self.PayloadANVL = PayloadFactory(ResponseText = self.ANVLraw, Type = "ANVL")
+
     def tearDown(self):
         pass
 
 
-class DataDownloadTest(unittest.TestCase, BasicTests):
+class DataDownloadTest(unittest.TestCase, BasicTests, FactoryTest):
     def setUp(self):
         self.maxDiff = None
 
-        self.JSONraw  = '{"@context" : "http://schema.org", "@id" : "ark:/99999/fk4Dataset1","identifier": "https://www.gtexportal.org/home/","includedInDataCatalog": "ark:/99999/fk4GTEx", "dateCreated": "1-01-18"}' 
+        self.JSONraw  = '{"@context" : "http://schema.org", "@id" : "ark:/99999/fk4Download1","identifier": "https://www.gtexportal.org/home/","version": "ark:/99999/fk4GTEx", "contentSize": "1-01-18", "fileFormat":".bam", "contentUrl": "http:example.org/"}' 
 
-        self.JSONDICT = {"@context": "http://schema.org","@id" : "ark:/99999/fk4Dataset1","identifier": "https://www.gtexportal.org/home/","includedInDataCatalog": "ark:/99999/fk4GTEx", "dateCreated": "1-01-18"}
+        self.JSONDICT = {"@context": "http://schema.org","@id" : "ark:/99999/fk4Download1","identifier": "https://www.gtexportal.org/home/","version": "ark:/99999/fk4GTEx", "contentSize": "1-01-18", "fileFormat":".bam", "contentUrl": "http:example.org/"}
  
-        self.ANVLraw = "_status: reserved\n_profile: NIHdc\n_target: ark:/99999/fk4Dataset1\nNIHdc.identifier: https://www.gtexportal.org/home/\nNIHdc.includedInDataCatalog: ark:/99999/fk4GTEx\nNIHdc.dateCreated: 1-01-18" 
+        self.ANVLraw = "_status: reserved\n_profile: NIHdc\n_target: ark:/99999/fk4Download1\nNIHdc.identifier: https://www.gtexportal.org/home/\nNIHdc.version: ark:/99999/fk4GTEx\nNIHdc.contentSize: 1-01-18\nNIHdc.fileFormat: .bam\nNIHdc.contentUrl: http:example.org/" 
 
-        self.ANVLDICT = { "_status": "reserved", "_profile": "NIHdc","_target" : "ark:/99999/fk4Dataset1","NIHdc.identifier": "https://www.gtexportal.org/home/","NIHdc.includedInDataCatalog": "ark:/99999/fk4GTEx","NIHdc.dateCreated": "1-01-18"}
+        self.ANVLDICT = { "_status": "reserved", "_profile": "NIHdc","_target" : "ark:/99999/fk4Download1","NIHdc.identifier": "https://www.gtexportal.org/home/","NIHdc.version": "ark:/99999/fk4GTEx","NIHdc.contentSize": "1-01-18","NIHdc.fileFormat":".bam", "NIHdc.contentUrl": "http:example.org/"}
 
-        self.JSON = Dataset(ResponseText = self.JSONraw, Type = "JSON")
-        self.ANVL = Dataset(ResponseText = self.ANVLraw, Type = "ANVL")
+        self.JSON = DataDownload(ResponseText = self.JSONraw, Type = "JSON")
+        self.ANVL = DataDownload(ResponseText = self.ANVLraw, Type = "ANVL")
+
+        self.PayloadJSON = PayloadFactory(ResponseText = self.JSONraw, Type = "JSON")
+        self.PayloadANVL = PayloadFactory(ResponseText = self.ANVLraw, Type = "ANVL")
 
     def tearDown(self):
         pass
