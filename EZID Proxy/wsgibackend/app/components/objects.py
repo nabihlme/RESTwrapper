@@ -19,7 +19,10 @@ class BodyResponse(object):
 
     def digestANVL(self, ResponseText): 
         self.ANVLdict = {}
-        tempANVL = ResponseText.decode('UTF-8')
+        if isinstance(ResponseText, bytes):
+            tempANVL = ResponseText.decode('UTF-8')
+        else:
+            tempANVL = ResponseText
 
         for element in tempANVL.split("\n"):
             SplitUp = element.split(": ", 1)
@@ -96,14 +99,14 @@ class Minid(BodyResponse):
 
             
 class DataCatalog(BodyResponse):
-    
+ 
     def JSONtoANVL(self):
         assert self.JSONdict is not None
         assert self.ANVLdict is None
 
         self.ANVLdict = {}
 
-        self.AVNLdict['_profile'] = 'NIHdc'
+        self.ANVLdict['_profile'] = 'NIHdc'
         self.ANVLdict['_status'] = 'reserved'
 
         self.ANVLdict['_target'] = self.JSONdict['@id']
@@ -111,11 +114,12 @@ class DataCatalog(BodyResponse):
         self.ANVLdict['NIHdc.name'] = self.JSONdict['name']
         self.ANVLdict['NIHdc.description'] = self.JSONdict['description']
 
-    def ANVLtoJSON():
+    def ANVLtoJSON(self):
         assert self.ANVLdict is not None
         assert self.JSONdict is None
         self.JSONdict = {}
-
+    
+        self.JSONdict['@context'] = 'http://schema.org'
         self.JSONdict['@id'] = self.ANVLdict['_target']
         self.JSONdict['identifier'] = self.ANVLdict['NIHdc.identifier']
         self.JSONdict['name'] = self.ANVLdict['NIHdc.name']
@@ -125,18 +129,59 @@ class DataCatalog(BodyResponse):
 
 class Dataset(BodyResponse):
 
-    def JSONtoANVL():
-        pass
+    def JSONtoANVL(self):
+        assert self.JSONdict is not None
+        assert self.ANVLdict is None
 
-    def ANVLtoJSON():
-        pass
+        self.ANVLdict = {}
+
+        self.ANVLdict['_profile'] = 'NIHdc'
+        self.ANVLdict['_status'] = 'reserved'
+
+        self.ANVLdict['_target'] = self.JSONdict['@id']
+        self.ANVLdict['NIHdc.identifier'] = self.JSONdict['identifier']
+        self.ANVLdict['NIHdc.includedInDataCatalog'] = self.JSONdict['includedInDataCatalog']
+        self.ANVLdict['NIHdc.dateCreated'] = self.JSONdict['dateCreated']
+
+
+    def ANVLtoJSON(self):
+        assert self.ANVLdict is not None
+        assert self.JSONdict is None
+        self.JSONdict = {}
+    
+        self.JSONdict['@context'] = 'http://schema.org'
+        self.JSONdict['@id'] = self.ANVLdict['_target']
+        self.JSONdict['identifier'] = self.ANVLdict['NIHdc.identifier']
+        self.JSONdict['includedInDataCatalog'] = self.ANVLdict['NIHdc.includedInDataCatalog']
+        self.JSONdict['dateCreated'] = self.ANVLdict['NIHdc.dateCreated']
 
 
 class DataDownload(BodyResponse):
 
-    def JSONtoANVL():
-        pass
+    def JSONtoANVL(self):
+        assert self.JSONdict is not None
+        assert self.ANVLdict is None
 
-    def ANVLtoJSON():
-        pass
+        self.ANVLdict = {}
 
+        self.ANVLdict['_profile'] = 'NIHdc'
+        self.ANVLdict['_status'] = 'reserved'
+
+        self.ANVLdict['_target'] = self.JSONdict['@id']
+        self.ANVLdict['NIHdc.type'] = self.JSONdict['@type']
+        self.ANVLdict['NIHdc.identifier'] = self.JSONdict['identifier']
+        self.ANVLdict['NIHdc.name'] = self.JSONdict['name']
+        self.ANVLdict['NIHdc.description'] = self.JSONdict['description']
+
+
+    def ANVLtoJSON(self):
+        assert self.ANVLdict is not None
+        assert self.JSONdict is None
+        self.JSONdict = {}
+    
+        self.JSONdict['@context'] = 'http://schema.org'
+        self.JSONdict['@id'] = self.ANVLdict['_target']
+        self.JSONdict['@type'] = self.ANVLdict['NIHdc.type']
+        self.JSONdict['identifier'] = self.ANVLdict['NIHdc.identifier']
+        self.JSONdict['name'] = self.ANVLdict['NIHdc.name']
+        self.JSONdict['description'] = self.ANVLdict['NIHdc.description']

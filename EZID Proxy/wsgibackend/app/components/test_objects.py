@@ -85,11 +85,66 @@ class MinidTest(unittest.TestCase, BasicTests):
 
         self.JSONraw = '{"identifier": "ark:/99999/fk4r8059v","created": "2015-11-10 04:44:44.387671","creator": "0000-0003-2129-5269","checksum": "cacc1abf711425d3c554277a5989df269cefaa906d27f1aaa72205d30224ed5f","checksumMethod":"sha1","status": "ACTIVE","locations": ["http://bd2k.ini.usc.edu/assets/all-hands-meeting/minid_v0.1_Nov_2015.pdf"],"titles": ["minid: A BD2K Minimal Viable Identifier Pilot v0.1"]}'
 
-
         self.ANVLraw = b'_target: ark:/99999/fk4r8059v\n_profile: minid\n_status: reserved\nminid.created: 2015-11-10 04:44:44.387671\nminid.creator: 0000-0003-2129-5269\nminid.checksum: cacc1abf711425d3c554277a5989df269cefaa906d27f1aaa72205d30224ed5f\nminid.checksumMethod: sha1\nminid.status: ACTIVE\nminid.locations: http://bd2k.ini.usc.edu/assets/all-hands-meeting/minid_v0.1_Nov_2015.pdf\nminid.titles: minid: A BD2K Minimal Viable Identifier Pilot v0.1'
 
         self.JSON = Minid(ResponseText = self.JSONraw, Type = "JSON")
         self.ANVL = Minid(ResponseText = self.ANVLraw, Type = "ANVL")
+
+    def tearDown(self):
+        pass
+
+class DataCatalogTest(unittest.TestCase, BasicTests):
+    def setUp(self):
+        self.maxDiff = None
+
+        self.JSONraw  = '{"@context" : "http://schema.org", "@id" : "ark:/99999/fk4Gtex","identifier": "https://www.gtexportal.org/home/","name": "GTEx Portal", "description": "tissues and expression"}' 
+
+        self.JSONDICT = {"@context": "http://schema.org","@id" : "ark:/99999/fk4Gtex","identifier": "https://www.gtexportal.org/home/","name": "GTEx Portal", "description": "tissues and expression"}
+ 
+        self.ANVLraw = "_status: reserved\n_profile: NIHdc\n_target: ark:/99999/fk4Gtex\nNIHdc.identifier: https://www.gtexportal.org/home/\nNIHdc.name: GTEx Portal\nNIHdc.description: tissues and expression" 
+
+        self.ANVLDICT = { "_status": "reserved", "_profile": "NIHdc","_target" : "ark:/99999/fk4Gtex","NIHdc.identifier": "https://www.gtexportal.org/home/","NIHdc.name": "GTEx Portal","NIHdc.description": "tissues and expression"}
+
+        self.JSON = DataCatalog(ResponseText = self.JSONraw, Type = "JSON")
+        self.ANVL = DataCatalog(ResponseText = self.ANVLraw, Type = "ANVL")
+
+    def tearDown(self):
+        pass
+
+
+class DatasetTest(unittest.TestCase, BasicTests):
+    def setUp(self):
+        self.maxDiff = None
+
+        self.JSONraw  = '{"@context" : "http://schema.org", "@id" : "ark:/99999/fk4Dataset1","identifier": "https://www.gtexportal.org/home/","includedInDataCatalog": "ark:/99999/fk4GTEx", "dateCreated": "1-01-18"}' 
+
+        self.JSONDICT = {"@context": "http://schema.org","@id" : "ark:/99999/fk4Dataset1","identifier": "https://www.gtexportal.org/home/","includedInDataCatalog": "ark:/99999/fk4GTEx", "dateCreated": "1-01-18"}
+ 
+        self.ANVLraw = "_status: reserved\n_profile: NIHdc\n_target: ark:/99999/fk4Dataset1\nNIHdc.identifier: https://www.gtexportal.org/home/\nNIHdc.includedInDataCatalog: ark:/99999/fk4GTEx\nNIHdc.dateCreated: 1-01-18" 
+
+        self.ANVLDICT = { "_status": "reserved", "_profile": "NIHdc","_target" : "ark:/99999/fk4Dataset1","NIHdc.identifier": "https://www.gtexportal.org/home/","NIHdc.includedInDataCatalog": "ark:/99999/fk4GTEx","NIHdc.dateCreated": "1-01-18"}
+
+        self.JSON = Dataset(ResponseText = self.JSONraw, Type = "JSON")
+        self.ANVL = Dataset(ResponseText = self.ANVLraw, Type = "ANVL")
+
+    def tearDown(self):
+        pass
+
+
+class DataDownloadTest(unittest.TestCase, BasicTests):
+    def setUp(self):
+        self.maxDiff = None
+
+        self.JSONraw  = '{"@context" : "http://schema.org", "@id" : "ark:/99999/fk4Dataset1","identifier": "https://www.gtexportal.org/home/","includedInDataCatalog": "ark:/99999/fk4GTEx", "dateCreated": "1-01-18"}' 
+
+        self.JSONDICT = {"@context": "http://schema.org","@id" : "ark:/99999/fk4Dataset1","identifier": "https://www.gtexportal.org/home/","includedInDataCatalog": "ark:/99999/fk4GTEx", "dateCreated": "1-01-18"}
+ 
+        self.ANVLraw = "_status: reserved\n_profile: NIHdc\n_target: ark:/99999/fk4Dataset1\nNIHdc.identifier: https://www.gtexportal.org/home/\nNIHdc.includedInDataCatalog: ark:/99999/fk4GTEx\nNIHdc.dateCreated: 1-01-18" 
+
+        self.ANVLDICT = { "_status": "reserved", "_profile": "NIHdc","_target" : "ark:/99999/fk4Dataset1","NIHdc.identifier": "https://www.gtexportal.org/home/","NIHdc.includedInDataCatalog": "ark:/99999/fk4GTEx","NIHdc.dateCreated": "1-01-18"}
+
+        self.JSON = Dataset(ResponseText = self.JSONraw, Type = "JSON")
+        self.ANVL = Dataset(ResponseText = self.ANVLraw, Type = "ANVL")
 
     def tearDown(self):
         pass
