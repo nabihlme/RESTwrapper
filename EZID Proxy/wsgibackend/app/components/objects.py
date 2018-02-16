@@ -1,7 +1,22 @@
 import json
 import re
+import requests
+from responses import *
 
 EZID = "https://ezid.cdlib.org/id/"
+#PROXY = "http://34.237.137.16/"
+PROXY = "https://ezid.cdlib.org/id/"
+
+MINID_KEYS_ANVL = set(['_target','minid.created','minid.creator','minid.checksum','minid.checksumMethod', 'minid.status', 'minid.locations', 'minid.titles']) 
+DATA_CATALOG_KEYS_ANVL = set(['_target', 'NIHdc.identifier', 'NIHdc.name', 'NIHdc.description'])
+DATASET_KEYS_ANVL = set(['_target', 'NIHdc.identifier', 'NIHdc.includedInDataCatalog','NIHdc.dateCreated'])
+DATA_DOWNLOAD_KEYS_ANVL = set(['_target', 'NIHdc.identifier', 'NIHdc.version', 'NIHdc.includedInDataset', 'NIHdc.contentSize', 'NIHdc.fileFormat', 'NIHdc.contentUrl'])
+
+
+MINID_KEYS_JSON = set(['identifier', 'created', 'creator', 'checksum','checksumMethod','status','locations', 'titles'])
+DATA_CATALOG_KEYS_JSON = set(['@context', '@id', 'identifier', 'name', 'description'])
+DATASET_KEYS_JSON = set(['@context', '@id', 'identifier', 'includedInDataCatalog', 'dateCreated'])
+DATA_DOWNLOAD_KEYS_JSON = set(['@context', '@id', 'identifier', 'version', 'includedInDataset', 'contentSize', 'fileFormat', 'contentUrl'])
 
 def escape (s):
   return re.sub("[%:\r\n]", lambda c: "%%%02X" % ord(c.group(0)), s)
@@ -21,6 +36,15 @@ def digestANVL(ResponseText):
 
     return ANVLdict
 
+def ValidateParent(ParentARK):
+    with requests.session() as Sess:
+        response = Sess.get( url = "".join([EZID, ParentARK]) ) 
+        Sess.close()
+
+    if response.status_code == 200:
+        return True
+    else:
+        return False
 
 def PayloadFactory(ResponseText, Type):
     '''
@@ -30,34 +54,70 @@ def PayloadFactory(ResponseText, Type):
     '''
     if Type=="ANVL":
         tempDict = digestANVL(ResponseText) 
-        if set(['_target','minid.created','minid.creator','minid.checksum','minid.checksumMethod', \
-                'minid.status', 'minid.locations', 'minid.titles']).issubset(set(tempDict.keys())):
+        if MINID_KEYS_ANVL.issubset(set(tempDict.keys())):
             return Minid(ResponseText, "ANVL")
-        if set(['_target', 'NIHdc.identifier', 'NIHdc.name', 'NIHdc.description']).issubset(set(tempDict.keys())):
+
+        if DATA_CATALOG_KEYS_ANVL.issubset(set(tempDict.keys())):
             return DataCatalog(ResponseText, "ANVL")
-        if set(['_target', 'NIHdc.identifier', 'NIHdc.includedInDataCatalog','NIHdc.dateCreated']).issubset(set(tempDict.keys())):
-            return Dataset(ResponseText, "ANVL")
-        if set(['_target', 'NIHdc.identifier', 'NIHdc.version', 'NIHdc.contentSize', 'NIHdc.fileFormat', \
-                'NIHdc.contentUrl']).issubset(set(tempDict.keys())):
-            return DataDownload(ResponseText, "ANVL")
+
+        if DATASET_KEYS_ANVL.issubset(set(tempDict.keys())):
+
+            if ValidateParent(tempDict['NIHdc.includedInDataCatalog']):
+                ValidDataset = Dataset(ResponseText, "ANVL")
+                ValidDataset.ANVLtoJSON()
+                return ValidDataset
+            else:
+                return InvalidParent(tempDict['NIHdc.includedInDataCatalog'])
+
+        if DATA_DOWNLOAD_KEYS_ANVL.issubset(set(tempDict.keys())):
+
+            if ValidateParent(tempDict['NIHdc.includedInDataset']):
+                Download = DataDownload(ResponseText, "ANVL")
+                Download.ANVLtoJSON()
+                return Download 
+            else:
+                return InvalidParent(tempDict['NIHdc.includedInDataset'])
+
+        else:
+            return BadANVL
 
     if Type=="JSON":
-        # need to also set the URL without converting
-
         if isinstance(ResponseText, dict):
             tempDict = ResponseText
         else:
             tempDict = json.loads(ResponseText)
 
-        if set(['identifier', 'created', 'creator', 'checksum','checksumMethod','status','locations', \
-                'titles']).issubset(tempDict.keys()):
-            return Minid(ResponseText, "JSON")
-        if set(['@id', 'identifier', 'name', 'description']).issubset(set(tempDict.keys())):
-            return DataCatalog(ResponseText, "JSON")
-        if set(['@id', 'identifier', 'includedInDataCatalog', 'dateCreated']).issubset(set(tempDict.keys())):
-            return Dataset(ResponseText, "JSON")
-        if set(['@id', 'identifier', 'version', 'contentSize', 'fileFormat', 'contentUrl']).issubset(set(tempDict.keys())):
-            return DataDownload(ResponseText, "JSON")
+        if MINID_KEYS_JSON.issubset(set(tempDict.keys())):
+            ValidMinid = Minid(ResponseText, "JSON")
+            ValidMinid.JSONtoANVL()
+            return ValidMinid
+
+        if DATA_CATALOG_KEYS_JSON.issubset(set(tempDict.keys())):
+            ValidCatalog = DataCatalog(ResponseText, "JSON")
+            ValidCatalog.JSONtoANVL()
+            return ValidCatalog
+
+        if DATASET_KEYS_JSON.issubset(set(tempDict.keys())):
+
+            if ValidateParent(tempDict['includedInDataCatalog']): 
+                ValidDataset = Dataset(ResponseText, "JSON")
+                ValidDataset.JSONtoANVL()
+                return ValidDataset
+            else:
+                return InvalidParent(tempDict['includedInDataCatalog'])
+
+        if DATA_DOWNLOAD_KEYS_JSON.issubset(set(tempDict.keys())):
+
+            if ValidateParent(tempDict['includedInDataset']):
+                ValidDownload = DataDownload(ResponseText, "JSON")
+                ValidDownload.JSONtoANVL()
+                return ValidDownload 
+            else:
+                return InvalidParent(tempDict['includedInDataset'])
+
+
+        else:
+            return BadRequestBody
 
 class BodyResponse(object):
     def __init__(self, ResponseText, Type):
@@ -119,7 +179,7 @@ class Minid(BodyResponse):
                 minid.titles    ->      titles
         '''
         self.JSONdict = {}
-        self.JSONdict['identifier'] = self.ANVLdict['_target']
+        self.JSONdict['identifier'] = self.ANVLdict['_target'].replace(PROXY,"")
         self.JSONdict['created'] = self.ANVLdict['minid.created']
         self.JSONdict['creator'] = self.ANVLdict['minid.creator']
         self.JSONdict['checksum'] = self.ANVLdict['minid.checksum']
@@ -148,7 +208,7 @@ class Minid(BodyResponse):
         self.ANVLdict = {}
         self.ANVLdict['_profile'] = 'minid'
         self.ANVLdict['_status'] = 'reserved'
-        #self.ANVLdict['_target'] = self.JSONdict['identifier']
+        self.ANVLdict['_target'] = "".join([PROXY, self.JSONdict['identifier']])
         self.ANVLdict['minid.created'] = self.JSONdict['created']
         self.ANVLdict['minid.creator'] = self.JSONdict['creator']
         self.ANVLdict['minid.checksum'] = self.JSONdict['checksum']
@@ -163,15 +223,12 @@ class Minid(BodyResponse):
 class DataCatalog(BodyResponse):
  
     def JSONtoANVL(self):
-        assert self.JSONdict is not None
-        assert self.ANVLdict is None
-
         self.ANVLdict = {}
 
         self.ANVLdict['_profile'] = 'NIHdc'
         self.ANVLdict['_status'] = 'reserved'
 
-        #self.ANVLdict['_target'] = self.JSONdict['@id']
+        self.ANVLdict['_target'] = "".join([PROXY, self.JSONdict['@id']])
         self.ANVLdict['NIHdc.identifier'] = self.JSONdict['identifier']
         self.ANVLdict['NIHdc.name'] = self.JSONdict['name']
         self.ANVLdict['NIHdc.description'] = self.JSONdict['description']
@@ -179,12 +236,10 @@ class DataCatalog(BodyResponse):
         self.URL = "".join([EZID, self.JSONdict['@id'] ])
 
     def ANVLtoJSON(self):
-        assert self.ANVLdict is not None
-        assert self.JSONdict is None
         self.JSONdict = {}
     
         self.JSONdict['@context'] = 'http://schema.org'
-        self.JSONdict['@id'] = self.ANVLdict['_target']
+        self.JSONdict['@id'] = self.ANVLdict['_target'].replace(PROXY, "")
         self.JSONdict['identifier'] = self.ANVLdict['NIHdc.identifier']
         self.JSONdict['name'] = self.ANVLdict['NIHdc.name']
         self.JSONdict['description'] = self.ANVLdict['NIHdc.description']
@@ -193,15 +248,12 @@ class DataCatalog(BodyResponse):
 class Dataset(BodyResponse):
 
     def JSONtoANVL(self):
-        assert self.JSONdict is not None
-        assert self.ANVLdict is None
-
         self.ANVLdict = {}
 
         self.ANVLdict['_profile'] = 'NIHdc'
         self.ANVLdict['_status'] = 'reserved'
 
-        #self.ANVLdict['_target'] = self.JSONdict['@id']
+        self.ANVLdict['_target'] = "".join([PROXY, self.JSONdict['@id']])
         self.ANVLdict['NIHdc.identifier'] = self.JSONdict['identifier']
         self.ANVLdict['NIHdc.includedInDataCatalog'] = self.JSONdict['includedInDataCatalog']
         self.ANVLdict['NIHdc.dateCreated'] = self.JSONdict['dateCreated']
@@ -209,12 +261,10 @@ class Dataset(BodyResponse):
         self.URL = "".join([EZID, self.JSONdict['@id'] ])
 
     def ANVLtoJSON(self):
-        assert self.ANVLdict is not None
-        assert self.JSONdict is None
         self.JSONdict = {}
     
         self.JSONdict['@context'] = 'http://schema.org'
-        self.JSONdict['@id'] = self.ANVLdict['_target']
+        self.JSONdict['@id'] = self.ANVLdict['_target'].replace(PROXY, "")
         self.JSONdict['identifier'] = self.ANVLdict['NIHdc.identifier']
         self.JSONdict['includedInDataCatalog'] = self.ANVLdict['NIHdc.includedInDataCatalog']
         self.JSONdict['dateCreated'] = self.ANVLdict['NIHdc.dateCreated']
@@ -223,16 +273,15 @@ class Dataset(BodyResponse):
 class DataDownload(BodyResponse):
 
     def JSONtoANVL(self):
-        assert self.JSONdict is not None
-        assert self.ANVLdict is None
 
         self.ANVLdict = {}
 
         self.ANVLdict['_profile'] = 'NIHdc'
         self.ANVLdict['_status'] = 'reserved'
 
-        #self.ANVLdict['_target'] = self.JSONdict['@id']
+        self.ANVLdict['_target'] = "".join([PROXY, self.JSONdict['@id']])
         self.ANVLdict['NIHdc.identifier'] = self.JSONdict['identifier']
+        self.ANVLdict['NIHdc.includedInDataset'] = self.JSONdict['includedInDataset']
         self.ANVLdict['NIHdc.version'] = self.JSONdict['version']
         self.ANVLdict['NIHdc.contentSize'] = self.JSONdict['contentSize']
         self.ANVLdict['NIHdc.fileFormat'] = self.JSONdict['fileFormat']
@@ -241,13 +290,12 @@ class DataDownload(BodyResponse):
         self.URL = "".join([EZID, self.JSONdict['@id'] ])
 
     def ANVLtoJSON(self):
-        assert self.ANVLdict is not None
-        assert self.JSONdict is None
         self.JSONdict = {}
    
         self.JSONdict['@context'] = 'http://schema.org'
-        self.JSONdict['@id'] = self.ANVLdict['_target']
+        self.JSONdict['@id'] = self.ANVLdict['_target'].replace(PROXY, "")
         self.JSONdict['identifier'] = self.ANVLdict['NIHdc.identifier'] 
+        self.JSONdict['includedInDataset'] = self.ANVLdict['NIHdc.includedInDataset'] 
         self.JSONdict['version'] = self.ANVLdict['NIHdc.version']
         self.JSONdict['contentSize'] = self.ANVLdict['NIHdc.contentSize'] 
         self.JSONdict['fileFormat'] = self.ANVLdict['NIHdc.fileFormat']

@@ -22,11 +22,12 @@ def RenderLandingPage(ResponsePayload):
         return render_template('dataDownload.html', Payload=ResponsePayload.JSONdict)
 
 app = Flask('EZIDwraper')
+OK_MIMETYPES = set(['application/json', 'application/ld+json', 'application/json+ld'])
 app.config['Debug'] = False
 app.config['TEMPLATES_AUTO_RELOAD'] = False
 app.config['Testing'] = False
 
-@app.route('/minid/mint', methods = ['PUT'])
+@app.route('/id/mint', methods = ['PUT'])
 def mintID():   
     headers = {'Content-Type': 'text/plain; charset=UTF-8'}
 
@@ -50,9 +51,31 @@ def mintID():
         ANVLsubmission = PayloadFactory(payload, "JSON")
         ANVLsubmission.JSONtoANVL()
         
-        print(ANVLsubmission.URL)
+        # Validating Parent ARKS exist
+        if isinstance(ANVLsubmission, Dataset)  
+            if Valid(ANVLsubmission.JSONdict['includedInDataCatalog']):
+                response = requests.put(
+                                url=ANVLsubmission.URL,
+                                auth = BasicAuth,
+                                headers= headers, 
+                                data = ANVLsubmission.returnANVL() )
+                return buildResponse(response)
 
-        if ANVLsubmission: 
+        if isinstance(ANVLsubmission, DatasetDownload):
+            if Valid(ANVLsubmission.JSONdict['identifier']):
+                response = requests.put(
+                                url=ANVLsubmission.URL,
+                                auth = BasicAuth,
+                                headers= headers, 
+                                data = ANVLsubmission.returnANVL() )
+                return buildResponse(response)
+            else:
+                return InvalidParent
+
+        if not (ANVLsubmission): 
+            return BadRequestBody
+
+        else:
             response = requests.put(
                             url=ANVLsubmission.URL,
                             auth = BasicAuth,
@@ -60,10 +83,7 @@ def mintID():
                             data = ANVLsubmission.returnANVL() )
             return buildResponse(response)
 
-        else:
-            return BadRequestBody
-
-@app.route('/minid/<path:ID>', methods=['GET', 'DELETE'])
+@app.route('/id/<path:ID>', methods=['GET', 'DELETE'])
 def runId(ID):
 
     headers = {'Content-Type': 'text/plain; charset=UTF-8'}
@@ -78,10 +98,9 @@ def runId(ID):
 
         if response.status_code == 200:  
             ANVLResponse = PayloadFactory(response.content, "ANVL")
-            ANVLResponse.ANVLtoJSON()
 
             # JSON-LD in the schema.org profile
-            if request.headers['Accept'] == 'application/ld+json':
+            if request.headers['Accept'] is in OK_MIMETYPES:
                 return Response( status = 200,
                 mimetype = 'application/ld+json; profile="http://schema.org"',  
                 response = ANVLResponse.returnJSON()               
@@ -89,17 +108,14 @@ def runId(ID):
 
             # if text/html render a landing page
             if request.headers['Accept'] == 'text/html':
-                return RenderLandingPage(ANVLResponse)
-
-            # if text/plain return EZID plaintext response
-                # return buildResponse(response)
+                return RenderLandingPage(Payload=ANVLResponse.JSONdict)
 
             # return a citation format
             if request.headers['Accept'] == 'text/x-bibliography':
                 return UnfinishedBuisness
 
             else:
-                return RenderLandingPage(ANVLResponse)
+                return RenderLandingPage(Payload=ANVLResponse.JSONdict)
  
         # TK: check response status, if it doesn't exist will cause errors
             # BE MORE PRECISE: read the plaintext errors

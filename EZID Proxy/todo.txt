@@ -26,35 +26,33 @@ File Structure
                 test_functions.py     -> test the processing of body responses
                 test_deployment.py    -> test local/docker/
 
-Testing
-    √ Testing the RenderLandingPage function
-    √ Testing the JSON-LD -> ANVL for submission
 
-√ Organizing with Classes for CoreMetadata Objects and Bound Methods?
+√ Implement Validation, Does this ARK exist? 
+    √ Test for Dataset, DataDownload
 
-√ FactoryFunction
-            class Animal(object):
-                @staticmethod
-                def get_animal_which_makes_this_noise(noise):
-                    if noise=="meow":
-                        return Cat()
-                    elif noise == 'woof':
-                        return Dog()
-
-√ Backup oldapp.py
-√ Remove all garbage, import objects, move all reposnses as well
-
-
-Change All Response Types to JSON-LD
-More mimetypes for JSON-LD
-
-Implement Validation, Does this ARK exist? 
+Use request_wants_json()
 
 Testing the Main Flask App
+    -every path, and deliver
 
-Makefile
+Install and build Jenkins config
+Jenkins to build docker images, and push to 
+    - Test_before build
+    - Build
+        - push_docker_images.sh
+        - task_revision.sh
+            - return task with new version -> task:3.1
+        - update_service.sh
+    - Test after 
+
+    - Test deployment
+        - get 
+Add Jenkins pipeline as a commit hook
+
+Sockets for between Nginx and uWSGI
 
 CI/CD
+    AWS codepipeline
 
 Unimportant notes
 =================
